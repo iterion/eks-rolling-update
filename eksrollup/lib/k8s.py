@@ -7,14 +7,18 @@ from .logger import logger
 from eksrollup.config import app_config
 
 
-def get_k8s_nodes(exclude_node_label_key=app_config["EXCLUDE_NODE_LABEL_KEY"]):
+def get_k8s_nodes(exclude_node_label_key=app_config["EXCLUDE_NODE_LABEL_KEY"], use_incluster_config=app_config["K8S_USE_INCLUSTER_CONFIG"]):
     """
     Returns a list of kubernetes nodes
     """
 
+    incluster_loaded = True
     try:
         config.load_incluster_config()
     except config.ConfigException:
+        incluster_loaded = False
+
+    if not incluster_loaded or not use_incluster_config:
         try:
             config.load_kube_config()
         except config.ConfigException:
@@ -50,14 +54,18 @@ def get_node_by_instance_id(k8s_nodes, instance_id):
     return node_name
 
 
-def modify_k8s_autoscaler(action):
+def modify_k8s_autoscaler(action, use_incluster_config=app_config["K8S_USE_INCLUSTER_CONFIG"]):
     """
     Pauses or resumes the Kubernetes autoscaler
     """
 
+    incluster_loaded = True
     try:
         config.load_incluster_config()
     except config.ConfigException:
+        incluster_loaded = False
+
+    if not incluster_loaded or not use_incluster_config:
         try:
             config.load_kube_config()
         except config.ConfigException:
@@ -88,14 +96,18 @@ def modify_k8s_autoscaler(action):
         sys.exit(1)
 
 
-def delete_node(node_name):
+def delete_node(node_name, use_incluster_config=app_config["K8S_USE_INCLUSTER_CONFIG"]):
     """
     Deletes a kubernetes node from the cluster
     """
 
+    incluster_loaded = True
     try:
         config.load_incluster_config()
     except config.ConfigException:
+        incluster_loaded = False
+
+    if not incluster_loaded or not use_incluster_config:
         try:
             config.load_kube_config()
         except config.ConfigException:
@@ -115,14 +127,18 @@ def delete_node(node_name):
         logger.info("Exception when calling CoreV1Api->delete_node: {}".format(e))
 
 
-def cordon_node(node_name):
+def cordon_node(node_name, use_incluster_config=app_config["K8S_USE_INCLUSTER_CONFIG"]):
     """
     Cordon a kubernetes node to avoid new pods being scheduled on it
     """
 
+    incluster_loaded = True
     try:
         config.load_incluster_config()
     except config.ConfigException:
+        incluster_loaded = False
+
+    if not incluster_loaded or not use_incluster_config:
         try:
             config.load_kube_config()
         except config.ConfigException:
