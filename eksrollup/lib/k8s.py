@@ -12,6 +12,9 @@ def get_k8s_nodes(exclude_node_label_key=app_config["EXCLUDE_NODE_LABEL_KEY"], u
     Returns a list of kubernetes nodes
     """
 
+    if not use_incluster_config:
+        logger.info("Skipping in cluster config...")
+
     incluster_loaded = True
     try:
         config.load_incluster_config()
@@ -19,6 +22,7 @@ def get_k8s_nodes(exclude_node_label_key=app_config["EXCLUDE_NODE_LABEL_KEY"], u
         incluster_loaded = False
 
     if not incluster_loaded or not use_incluster_config:
+        logger.info("Trying kubeconfig...")
         try:
             config.load_kube_config()
         except config.ConfigException:
